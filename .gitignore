@@ -24,3 +24,7 @@ logs/
 # OS-specific files
 .DS_Store  # macOS
 Thumbs.db  # Windows
+
+# Other
+beats/
+output/
