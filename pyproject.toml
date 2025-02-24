@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "beat_challenge_generator"
+version = "0.1.0"
+description = "A Python tool to generate random beat challenges"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+license = { text = "MIT" }
+readme = "README.md"
+dependencies = [
+    "loguru",
+]
+
+[project.scripts]
+beat-gen = "beat_challenge_generator.main:main"

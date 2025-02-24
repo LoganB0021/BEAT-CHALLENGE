@@ -1,0 +1,26 @@
+# Virtual Environment
+venv/
+
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Test files (if they contain local configuration or large files you don’t want to track)
+tests/__pycache__/
+
+# Distribution / Packaging
+dist/
+build/
+*.egg-info/
+
+# Logs
+logs/
+
+# IDE or editor-specific files
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store  # macOS
+Thumbs.db  # Windows
