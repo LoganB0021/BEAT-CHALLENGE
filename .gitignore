@@ -28,3 +28,6 @@ Thumbs.db  # Windows
 # Other
 beats/
 output/
+
+# pytest cache
+.pytest_cache
