@@ -1,6 +1,5 @@
 import os
 from beat_challenge_generator.logger import logger
-
 # Base directory (the root of the project)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -10,9 +9,20 @@ BEAT_DIR = os.path.join(BASE_DIR, "beats")
 # Output directory for generated beat packs
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 
-# Logs directory
-LOG_DIR = os.path.join(BASE_DIR, "logs")
+# Subdirectories for beat components
+BEAT_SUBDIRS = ["drum_kits", "fx", "samples"]
 
 # Ensure necessary directories exist
-for directory in [BEAT_DIR, OUTPUT_DIR, LOG_DIR]:
+for directory in [BEAT_DIR, OUTPUT_DIR]:
     os.makedirs(directory, exist_ok=True)
+
+# Initialize beat subdirectories
+def initialize_beat_folders():
+    """Ensure the beat subdirectories exist."""
+    for subdir in BEAT_SUBDIRS:
+        subdir_path = os.path.join(BEAT_DIR, subdir)
+        os.makedirs(subdir_path, exist_ok=True)
+        logger.info(f"Initialized folder: {subdir_path}")
+
+# Run the initialization function to set up directories
+initialize_beat_folders()
