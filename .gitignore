@@ -31,3 +31,6 @@ output/
 
 # pytest cache
 .pytest_cache/
+
+# virtual environment folders
+.venv/

@@ -9,10 +9,24 @@ description = "A Python tool to generate random beat challenges"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 license = { text = "MIT" }
 readme = "README.md"
+
 dependencies = [
     "loguru",
     "SQLAlchemy",
+    "Flask",
+    "Flask-Cors",
+    "Flask-Migrate",
+    "Flask-SQLAlchemy",
+    "click>=8.3.1",
 ]
 
 [project.scripts]
 beat-gen = "beat_challenge_generator.main:main"
+
+[tool.uv]
+package = true
+
+[dependency-groups]
+dev = [
+    "pytest"
+]
