@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 from typing import Optional
 from sqlalchemy import (
     Integer,
@@ -10,6 +11,8 @@ from sqlalchemy import (
     JSON,
 )
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column
+
+from beat_challenge_generator.config import BEAT_DIR
 
 Base = declarative_base()
 
@@ -30,6 +33,13 @@ class Sound(Base):
 
     def __repr__(self) -> str:
         return f"<Sound(id={self.id} path={self.relative_path})>"
+    
+    @property
+    def file_path(self) -> str:
+        """
+        Return the absolute path to the sound file or folder on disk.
+        """
+        return os.path.join(BEAT_DIR, self.category, self.relative_path)
 
 
 class Pack(Base):

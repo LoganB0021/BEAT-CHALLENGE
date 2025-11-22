@@ -34,3 +34,6 @@ output/
 
 # virtual environment folders
 .venv/
+
+# local database files
+data/beat_challenge.db
