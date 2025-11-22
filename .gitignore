@@ -36,4 +36,4 @@ output/
 .venv/
 
 # local database files
-data/beat_challenge.db
+data/
