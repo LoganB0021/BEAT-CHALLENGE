@@ -22,6 +22,7 @@ dependencies = [
 
 [project.scripts]
 beat-gen = "beat_challenge_generator.main:main"
+ingest = "beat_challenge_generator.ingest:main"
 
 [tool.uv]
 package = true
