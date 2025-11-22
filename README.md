@@ -1,5 +1,3 @@
-
-````markdown
 # 🎵 Beat Challenge Generator
 
 A Python-based tool that **randomly selects beat components** (Drum Kits, FX, Samples), packages them into a zip file, and **stores metadata in a database** for reproducible, deterministic beat-making challenges.
@@ -76,7 +74,7 @@ This will show all installed packages inside the uv-managed environment.
 ### Generate a Beat Challenge (CLI)
 
 ```sh
-uv run python -m beat_challenge_generator.main
+uv run beat-gen
 ```
 
 This will:
