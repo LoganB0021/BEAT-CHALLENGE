@@ -30,4 +30,4 @@ beats/
 output/
 
 # pytest cache
-.pytest_cache
+.pytest_cache/
