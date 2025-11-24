@@ -1,13 +1,12 @@
 from datetime import date
 from beat_challenge_generator.db import get_session
 from beat_challenge_generator.logger import logger
-import beat_challenge_generator.config
 from beat_challenge_generator.file_selector import deterministic_select_by_date
 from beat_challenge_generator.file_manager import create_pack
 from beat_challenge_generator.models import Pack
 import os
 
-def main(dry_run: bool = False):
+def main():
     logger.info("🎵 Starting Beat Challenge Generator...")
 
     try:
