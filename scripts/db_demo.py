@@ -35,7 +35,7 @@ with get_session() as session:
     p = session.query(Pack).filter_by(date=today).first()
     if not p:
         p = Pack(name=pack_name, date=today, seed=today,
-                 zip_path=os.path.join(config.PACKS_DIR, pack_name),
+                 zip_path=os.path.join(config.OUTPUT_DIR, pack_name),
                  items=json.dumps([s.relative_path]), status="ready", size_bytes=0, checksum=None)
         session.add(p)
         session.commit()

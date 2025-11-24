@@ -2,60 +2,15 @@ from datetime import datetime
 import hashlib
 import os
 import zipfile
-import random
-import string
 
 from sqlalchemy.orm import Session
 from beat_challenge_generator.logger import logger
-from beat_challenge_generator.config import BEAT_DIR, OUTPUT_DIR, PACKS_DIR
+from beat_challenge_generator.config import OUTPUT_DIR
 from beat_challenge_generator.models import Pack
-
-def generate_random_name(length=8):
-    """Generate a random string for the zip file name."""
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-
-def add_to_zip(zipf, file_path, arcname):
-    """Adds a file or an entire folder to the zip archive."""
-    if os.path.isdir(file_path):  # If it's a folder, add all its contents
-        for root, _, files in os.walk(file_path):
-            for file in files:
-                full_path = os.path.join(root, file)
-                file_path = os.path.relpath(full_path, BEAT_DIR)  # Preserve folder structure
-                zipf.write(full_path, file_path)
-                logger.info(f"📂 Added folder file: {file_path}")
-    else:  # If it's a file, add it normally
-        zipf.write(file_path, arcname)
-        logger.info(f"📄 Added file: {arcname}")
-
-def create_beat_pack(selected_files):
-    """Creates a zip file with the selected beat components, including folders."""
-    if not selected_files:
-        logger.warning("⚠️ No files selected for beat pack.")
-        return None
-
-    pack_name = f"beat_{generate_random_name()}.zip"
-    pack_path = os.path.join(OUTPUT_DIR, pack_name)
-
-    try:
-        with zipfile.ZipFile(pack_path, 'w') as zipf:
-            for category, item in selected_files.items():
-                item_path = os.path.join(BEAT_DIR, category, item)
-
-                if os.path.exists(item_path):
-                    add_to_zip(zipf, item_path, os.path.join(category, item))
-                else:
-                    logger.error(f"❌ Item not found: {item_path}")
-
-        logger.info(f"🎉 Beat pack created: {pack_path}")
-        return pack_path
-
-    except Exception as e:
-        logger.error(f"🚨 Error creating beat pack: {e}")
-        return None
     
 def create_pack(selected_sounds: dict, db: Session):
     """
-    Create a Pack record in DB and write zip to PACKS_DIR.
+    Create a Pack record in DB and write zip to OUTPUT_DIR.
 
     Args:
         selected_sounds (dict): {category: Sound instance}
@@ -64,7 +19,7 @@ def create_pack(selected_sounds: dict, db: Session):
     Returns:
         str: Path to the created zip file
     """
-    os.makedirs(PACKS_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Create deterministic name based on date
     today_str = datetime.today().strftime("%Y-%m-%d")
@@ -72,7 +27,7 @@ def create_pack(selected_sounds: dict, db: Session):
 
     # Use timestamp in filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    zip_filename = os.path.join(PACKS_DIR, f"pack_{timestamp}.zip")
+    zip_filename = os.path.join(OUTPUT_DIR, f"pack_{timestamp}.zip")
 
     # Create the zip file
     with zipfile.ZipFile(zip_filename, "w", zipfile.ZIP_DEFLATED) as zf:

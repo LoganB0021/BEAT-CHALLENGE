@@ -13,9 +13,6 @@ OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 # Data directory for persistent artifacts (database, etc.)
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
-# Directory for generated pack zips
-PACKS_DIR = os.path.join(OUTPUT_DIR, "packs")
-
 # Subdirectories for beat components
 BEAT_SUBDIRS = ["drum_kits", "fx", "samples"]
 
@@ -24,7 +21,7 @@ _default_db_path = os.path.join(DATA_DIR, "beat_challenge.db")
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{_default_db_path}")
 
 # Ensure necessary directories exist
-for directory in [BEAT_DIR, OUTPUT_DIR, DATA_DIR, PACKS_DIR]:
+for directory in [BEAT_DIR, OUTPUT_DIR, DATA_DIR]:
     os.makedirs(directory, exist_ok=True)
 
 # Initialize beat subdirectories
