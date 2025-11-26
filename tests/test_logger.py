@@ -1,6 +1,6 @@
 import os
 import datetime
-from beat_challenge_generator.logger import LOG_DIR, logger
+from beat_challenge_generator.logging.logger import LOG_DIR, logger
 
 def test_log_file_creation():
     """Ensure a log file is created when logger is used."""

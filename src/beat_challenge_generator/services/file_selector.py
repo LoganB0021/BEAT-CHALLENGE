@@ -2,17 +2,18 @@ import hashlib
 from datetime import date
 from typing import Optional
 from sqlalchemy.orm import Session
-from beat_challenge_generator.logger import logger
+from beat_challenge_generator.logging.logger import logger
 from beat_challenge_generator.models import Sound
+from beat_challenge_generator import config
 
-def deterministic_select_by_date(db: Session, target_date: Optional[date] = None):
+def deterministic_select_by_date(session: Session, target_date: Optional[date] = None):
     """
     Select one item per category deterministically based on a date.
     If no date is provided, uses today's date.
     Returns a dict: {category: Sound instance}
     """
     selected = {}
-    categories = ["drum_kits", "fx", "samples"]
+    categories = config.BEAT_SUBDIRS
 
     # Default to today's date
     if target_date is None:
@@ -22,7 +23,7 @@ def deterministic_select_by_date(db: Session, target_date: Optional[date] = None
     date_seed = int(target_date.strftime("%Y%m%d"))
 
     for cat in categories:
-        items = db.query(Sound).filter(Sound.category == cat).all()
+        items = session.query(Sound).filter(Sound.category == cat).all()
         if not items:
             logger.warning(f"⚠️ No items found in category {cat}")
             continue

@@ -1,13 +1,9 @@
 import datetime
 import glob
-from loguru import logger
 import os
 
-# Base directory (the root of the project)
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-
-# Logs directory
-LOG_DIR = os.path.join(BASE_DIR, "logs")
+from loguru import logger
+from beat_challenge_generator.config.paths import BASE_DIR, LOG_DIR
 
 # Make sure the logs directory exists
 os.makedirs(LOG_DIR, exist_ok=True)

@@ -15,14 +15,11 @@ dependencies = [
     "SQLAlchemy",
     "Flask",
     "Flask-Cors",
-    "Flask-Migrate",
-    "Flask-SQLAlchemy",
     "click>=8.3.1",
 ]
 
 [project.scripts]
-beat-gen = "beat_challenge_generator.main:main"
-ingest = "beat_challenge_generator.ingest:main"
+beat-gen = "beat_challenge_generator.main:cli"
 
 [tool.uv]
 package = true

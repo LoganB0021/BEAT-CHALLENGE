@@ -1,54 +1,85 @@
+"""
+Main CLI entrypoint for the Beat Challenge Generator.
+
+This file allows running core functionality of the generator *without the API*.
+The API will import and reuse the same services.
+"""
+
+import click
 from datetime import date
-from beat_challenge_generator.db import get_session
-from beat_challenge_generator.logger import logger
-from beat_challenge_generator.file_selector import deterministic_select_by_date
-from beat_challenge_generator.file_manager import create_pack
-from beat_challenge_generator.models import Pack
-import os
 
-def main():
-    logger.info("🎵 Starting Beat Challenge Generator...")
+from beat_challenge_generator.db.session import get_session
+from beat_challenge_generator.services.ingest_service import ingest_beats
+from beat_challenge_generator.services.file_selector import deterministic_select_by_date
+from beat_challenge_generator.services.file_manager import create_pack
+from beat_challenge_generator.logging.logger import logger
 
-    try:
-        today_str = date.today().isoformat()
-        
-        with get_session() as db:
-            # Check if today's pack already exists
-            existing_pack = db.query(Pack).filter(Pack.date == today_str).first()
-            
-            if existing_pack:
-                logger.info(f"💡 Pack for {today_str} already exists: {existing_pack.zip_path}")
-                print(f"🎵 Today's beat challenge already exists: {existing_pack.zip_path}")
 
-                # Ask user for permission to overwrite
-                response = input("Do you want to overwrite it? (y/N): ").strip().lower()
-                if response != "y":
-                    print("❌ Exiting without overwriting.")
-                    return
-                
-                # Delete the existing pack
-                logger.info(f"🗑️ Deleting existing pack {existing_pack.zip_path}")
-                
-                # Remove zip file if it exists
-                if existing_pack.zip_path and os.path.exists(existing_pack.zip_path):
-                    os.remove(existing_pack.zip_path)
-                    logger.info(f"Deleted file: {existing_pack.zip_path}")
-                
-                db.delete(existing_pack)
-                db.commit()
-                logger.info("Deleted existing DB entry.")
+@click.group()
+def cli():
+    """Beat Challenge Generator CLI"""
+    pass
 
-            # Select files deterministically
-            selected = deterministic_select_by_date(db)
-            logger.info(f"Selected files: {selected}")
 
-            # Create the new pack
-            zip_path = create_pack(selected, db)
-            logger.info(f"🎵 Beat challenge created: {zip_path}")
-            print(f"🎵 Beat challenge created: {zip_path}")
+# ---------------------------------------------------------
+# INGEST COMMAND
+# ---------------------------------------------------------
+@cli.command()
+@click.option("--dry-run", is_flag=True, help="Scan files but do not modify database")
+@click.option("--category", type=str, default=None, help="Only ingest a specific category")
+def ingest(dry_run: bool, category: str):
+    """Ingest beat folders into the database."""
+    with get_session() as session:
+        stats = ingest_beats(session=session, dry_run=dry_run, category=category)
 
-    except Exception as e:
-        logger.error(f"🚨 An error occurred: {e}")
+        click.echo(
+            f"Ingest finished:\n"
+            f"  scanned:   {stats['scanned']}\n"
+            f"  added:     {stats['added']}\n"
+            f"  updated:   {stats['updated']}\n"
+            f"  unchanged: {stats['unchanged']}"
+        )
 
+
+# ---------------------------------------------------------
+# SELECT DAILY BEAT ITEMS
+# ---------------------------------------------------------
+@cli.command()
+@click.option("--date", "date_str", type=str, default=None, help="Generate for this date (YYYY-MM-DD)")
+def select(date_str: str):
+    """Run deterministic selection for a given date."""
+    target_date = date.fromisoformat(date_str) if date_str else None
+
+    with get_session() as session:
+        selected = deterministic_select_by_date(session, target_date)
+
+        click.echo("Selected items:")
+        for cat, sound in selected.items():
+            click.echo(f"  {cat}: {sound.name}")
+
+
+# ---------------------------------------------------------
+# GENERATE PACK (ZIP + DB RECORD)
+# ---------------------------------------------------------
+@cli.command()
+@click.option("--zip2db", "date_str", type=str, default=None, help="Generate pack for this date (YYYY-MM-DD)")
+def generate(date_str: str):
+    """Create the daily pack zip and DB record."""
+    target_date = date.fromisoformat(date_str) if date_str else None
+
+    with get_session() as session:
+        selected = deterministic_select_by_date(session, target_date)
+        zip_path = create_pack(selected, session)
+
+    click.echo(f"Pack generated at: {zip_path}")
+
+
+# ---------------------------------------------------------
+# ENTRYPOINT
+# ---------------------------------------------------------
 if __name__ == "__main__":
-    main(dry_run=False)
+    try:
+        cli()
+    except Exception as e:
+        logger.exception(f"Unhandled error: {e}")
+        raise

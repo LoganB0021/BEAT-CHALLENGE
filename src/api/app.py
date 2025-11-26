@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_cors import CORS
-from api.routes import api_blueprint
 from api.config import Config
 from flask_sqlalchemy import SQLAlchemy
 
@@ -12,7 +11,7 @@ app.config.from_object(Config)
 CORS(app)
 
 # Register API routes
-app.register_blueprint(api_blueprint, url_prefix='/api')
+# app.register_blueprint(api_blueprint, url_prefix='/api')
 
 if __name__ == "__main__":
     app.run(debug=True)

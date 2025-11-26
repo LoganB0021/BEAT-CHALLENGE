@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from beat_challenge_generator import models, db, ingest
-from beat_challenge_generator.logger import logger
+from beat_challenge_generator.logging.logger import logger
 
 
 @pytest.fixture

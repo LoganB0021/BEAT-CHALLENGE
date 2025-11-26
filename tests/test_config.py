@@ -1,6 +1,6 @@
 import os
 from beat_challenge_generator.config import BEAT_DIR, OUTPUT_DIR, initialize_beat_folders
-from beat_challenge_generator.logger import LOG_DIR
+from beat_challenge_generator.logging.logger import LOG_DIR
 
 def test_directories_exist():
     """Ensure that required directories are created."""
