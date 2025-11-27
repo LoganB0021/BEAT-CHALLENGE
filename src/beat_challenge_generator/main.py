@@ -62,7 +62,7 @@ def select(date_str: str):
 # GENERATE PACK (ZIP + DB RECORD)
 # ---------------------------------------------------------
 @cli.command()
-@click.option("--zip2db", "date_str", type=str, default=None, help="Generate pack for this date (YYYY-MM-DD)")
+@click.option("--date", "date_str", type=str, default=None, help="Generate pack for this date (YYYY-MM-DD)")
 def generate(date_str: str):
     """Create the daily pack zip and DB record."""
     target_date = date.fromisoformat(date_str) if date_str else None
