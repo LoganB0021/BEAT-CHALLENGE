@@ -37,3 +37,6 @@ output/
 
 # local database files
 data/
+
+# Copilot Instructions
+.github/copilot-instructions.md
