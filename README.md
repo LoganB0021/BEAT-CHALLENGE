@@ -125,8 +125,36 @@ export PYTHONPATH=src && uv run python -m api.app
 The Flask API starts on `http://localhost:5000/` with endpoints:
 
 * `GET /api/daily-challenge` — downloads the stored/generated daily challenge ZIP.
-  Add `?mode=random` for a random database-backed challenge.
-* Additional endpoints available via `src/api/routes.py`.
+  Daily mode is the public default and reuses an existing generated pack.
+* `POST /api/challenges` — optionally queues an authenticated asynchronous
+  challenge when `ALLOW_ASYNC_CHALLENGES=true`.
+* `GET /api/challenges/<id>` — checks an authenticated job's status.
+* `GET /api/challenges/<id>/download` — downloads a completed authenticated
+  job result.
+
+Random synchronous generation is disabled by default. If enabled, it requires
+the `BEAT_API_KEY` Bearer token. Long-running generation should use the
+database-backed job API and the `beat-worker` process rather than a Flask
+background thread.
+
+Hosted configuration is controlled with environment variables:
+
+* `DATABASE_URL` — absolute SQLite URL or a SQLAlchemy-compatible MySQL URL.
+* `SECRET_KEY` — required deployment secret.
+* `ALLOWED_ORIGINS` — comma-separated browser origins; empty disables CORS.
+* `TRUSTED_HOSTS` — comma-separated production hostnames.
+* `ALLOW_RANDOM_CHALLENGES` — defaults to `false`.
+* `ALLOW_ASYNC_CHALLENGES` — defaults to `false`.
+* `BEAT_API_KEY` — Bearer token for random and asynchronous generation.
+
+Generated archives can be retained with:
+
+```sh
+uv run beat-cleanup --keep 5 --temp-age-hours 24
+```
+
+Cleanup preserves the current daily pack and archives referenced by active or
+completed asynchronous jobs, and removes stale temporary ZIP files.
 
 ---
 

@@ -23,6 +23,27 @@ BEAT_SUBDIRS = ["drum_kits", "fx", "samples"]
 _default_db_path = os.path.join(DATA_DIR, "beat_challenge.db")
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{_default_db_path}")
 
+# Public API behavior is configured through environment variables so local and
+# hosted deployments can share the same code without hard-coded secrets.
+SECRET_KEY = os.getenv("SECRET_KEY")
+BEAT_API_KEY = os.getenv("BEAT_API_KEY")
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+ALLOW_RANDOM_CHALLENGES = os.getenv("ALLOW_RANDOM_CHALLENGES", "false").lower() == "true"
+ALLOW_ASYNC_CHALLENGES = os.getenv("ALLOW_ASYNC_CHALLENGES", "false").lower() == "true"
+JOB_RATE_LIMIT_SECONDS = int(os.getenv("JOB_RATE_LIMIT_SECONDS", "60"))
+MAX_JOBS_PER_RATE_WINDOW = int(os.getenv("MAX_JOBS_PER_RATE_WINDOW", "1"))
+JOB_STALE_AFTER_SECONDS = int(os.getenv("JOB_STALE_AFTER_SECONDS", "1800"))
+TRUSTED_HOSTS = [
+    host.strip()
+    for host in os.getenv("TRUSTED_HOSTS", "").split(",")
+    if host.strip()
+]
+MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", str(16 * 1024)))
+
 # Ensure necessary directories exist
 for directory in [BEAT_DIR, OUTPUT_DIR, DATA_DIR, PACKS_DIR]:
     os.makedirs(directory, exist_ok=True)

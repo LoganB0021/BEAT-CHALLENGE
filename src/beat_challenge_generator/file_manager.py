@@ -1,9 +1,12 @@
 from datetime import datetime
 import hashlib
 import os
+import tempfile
 import zipfile
 import random
 import string
+from pathlib import Path
+from uuid import uuid4
 
 from sqlalchemy.orm import Session
 from beat_challenge_generator.logger import logger
@@ -69,50 +72,70 @@ def create_pack(selected_sounds: dict, db: Session, pack_date=None, mode="daily"
     pack_date = pack_date or datetime.today().strftime("%Y-%m-%d")
     name = f"pack_{pack_date}"
 
-    # Use timestamp in filename
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    zip_filename = os.path.join(PACKS_DIR, f"pack_{timestamp}.zip")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    zip_filename = os.path.join(PACKS_DIR, f"pack_{timestamp}_{uuid4().hex}.zip")
+    temp_path = None
+    beat_root = Path(BEAT_DIR).resolve()
 
-    # Create the zip file
-    with zipfile.ZipFile(zip_filename, "w", zipfile.ZIP_DEFLATED) as zf:
+    try:
+        validated = []
         for category, sound in selected_sounds.items():
-            if not os.path.exists(sound.file_path):
-                logger.warning(f"⚠️ File/folder does not exist: {sound.file_path}")
-                continue
+            source = Path(sound.file_path).resolve()
+            if source != beat_root and beat_root not in source.parents:
+                raise ValueError(f"Selected path is outside the beats directory: {source}")
+            if not source.exists():
+                raise FileNotFoundError(f"Selected file/folder does not exist: {source}")
+            validated.append((category, sound, source))
 
-            if sound.is_folder:
-                # Add folder contents recursively
-                for root, _, files in os.walk(sound.file_path):
-                    for file in files:
-                        full_path = os.path.join(root, file)
-                        # Preserve category folder structure inside zip
-                        arcname = os.path.join(category, os.path.relpath(full_path, sound.file_path))
-                        zf.write(full_path, arcname)
-            else:
-                # Single file
-                arcname = os.path.join(category, os.path.basename(sound.file_path))
-                zf.write(sound.file_path, arcname)
+        fd, temp_path = tempfile.mkstemp(prefix=".pack-", suffix=".tmp", dir=PACKS_DIR)
+        os.close(fd)
+        with zipfile.ZipFile(temp_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            for category, sound, source in validated:
+                if sound.is_folder:
+                    for root, _, files in os.walk(source):
+                        for file in files:
+                            full_path = Path(root) / file
+                            relative = full_path.relative_to(source).as_posix()
+                            zf.write(full_path, f"{category}/{source.name}/{relative}")
+                else:
+                    zf.write(source, f"{category}/{source.name}")
 
-    # Compute zip size and checksum
-    size_bytes = os.path.getsize(zip_filename)
-    with open(zip_filename, "rb") as f:
-        checksum = hashlib.sha256(f.read()).hexdigest()
+        os.replace(temp_path, zip_filename)
+        temp_path = None
 
-    # Create DB Pack record with all required fields
-    pack = Pack(
-        name=name,
-        date=pack_date,
-        seed=int(datetime.today().strftime("%Y%m%d")),
-        zip_path=zip_filename,
-        size_bytes=size_bytes,
-        checksum=checksum,
-        items=[sound.id for sound in selected_sounds.values()],
-        status="generated",
-        generated_by=f"file_selector:{mode}",
-        updated_at=datetime.now()
-    )    
-    db.add(pack)
-    db.commit()
+        size_bytes = os.path.getsize(zip_filename)
+        digest = hashlib.sha256()
+        with open(zip_filename, "rb") as f:
+            for chunk in iter(lambda: f.read(1024 * 1024), b""):
+                digest.update(chunk)
+        checksum = digest.hexdigest()
 
-    logger.info(f"✅ Pack created at {zip_filename} with DB record ID {pack.id}")
-    return zip_filename
+        pack = Pack(
+            name=name,
+            date=pack_date,
+            seed=int(datetime.today().strftime("%Y%m%d")),
+            zip_path=zip_filename,
+            size_bytes=size_bytes,
+            checksum=checksum,
+            items=[sound.id for sound in selected_sounds.values()],
+            status="generated",
+            generated_by=f"file_selector:{mode}",
+            updated_at=datetime.now(),
+        )
+        db.add(pack)
+        db.commit()
+        logger.info(f"✅ Pack created at {zip_filename} with DB record ID {pack.id}")
+        return zip_filename
+    except Exception:
+        db.rollback()
+        if temp_path:
+            try:
+                os.remove(temp_path)
+            except FileNotFoundError:
+                pass
+        if os.path.exists(zip_filename):
+            try:
+                os.remove(zip_filename)
+            except FileNotFoundError:
+                pass
+        raise

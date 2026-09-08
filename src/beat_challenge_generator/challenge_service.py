@@ -4,6 +4,7 @@ import random
 from typing import Optional
 
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from beat_challenge_generator.file_manager import create_pack
 from beat_challenge_generator.file_selector import deterministic_select_by_date
@@ -40,24 +41,33 @@ def generate_challenge(
         existing_pack = db.query(Pack).filter(Pack.date == daily_date).first()
         if existing_pack and not overwrite and os.path.exists(existing_pack.zip_path):
             return existing_pack
+        previous_zip_path = existing_pack.zip_path if existing_pack else None
         if existing_pack:
-            if existing_pack.zip_path and os.path.exists(existing_pack.zip_path):
-                os.remove(existing_pack.zip_path)
             db.delete(existing_pack)
-            db.commit()
+            db.flush()
         selected = deterministic_select_by_date(db, target_date)
         pack_date = daily_date
     else:
         selected = random_select(db)
         pack_date = datetime.now().strftime("random-%Y%m%d-%H%M%S-%f")
+        previous_zip_path = None
 
     if not selected:
         return None
 
-    zip_path = create_pack(
-        selected,
-        db,
-        pack_date=pack_date,
-        mode=mode,
-    )
+    try:
+        zip_path = create_pack(selected, db, pack_date=pack_date, mode=mode)
+    except IntegrityError:
+        db.rollback()
+        if mode == "daily":
+            winner = db.query(Pack).filter(Pack.date == daily_date).first()
+            if winner and os.path.exists(winner.zip_path):
+                return winner
+        raise
+    if mode == "daily" and previous_zip_path and previous_zip_path != zip_path:
+        try:
+            if os.path.exists(previous_zip_path):
+                os.remove(previous_zip_path)
+        except OSError:
+            logger.warning(f"Could not remove superseded pack: {previous_zip_path}")
     return db.query(Pack).filter(Pack.zip_path == zip_path).one()

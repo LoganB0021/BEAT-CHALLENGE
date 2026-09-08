@@ -9,6 +9,7 @@ from sqlalchemy import (
     DateTime,
     func,
     JSON,
+    Text,
 )
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 
@@ -41,6 +42,11 @@ class Sound(Base):
         """
         return os.path.join(BEAT_DIR, self.category, self.relative_path)
 
+    @property
+    def filename(self) -> str:
+        """Compatibility alias for the basename of the indexed path."""
+        return os.path.basename(self.relative_path)
+
 
 class Pack(Base):
     __tablename__ = "packs"
@@ -60,3 +66,31 @@ class Pack(Base):
 
     def __repr__(self) -> str:
         return f"<Pack(id={self.id} name={self.name} date={self.date})>"
+
+
+class ChallengeJob(Base):
+    __tablename__ = "challenge_jobs"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mode: Mapped[str] = mapped_column(String(20))
+    status: Mapped[str] = mapped_column(String(20), index=True, default="pending")
+    api_key_hash: Mapped[str] = mapped_column(String(64), index=True)
+    pack_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    started_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), onupdate=func.now(), nullable=True
+    )
+
+    def __repr__(self) -> str:
+        return f"<ChallengeJob(id={self.id} status={self.status} mode={self.mode})>"
+
+
+class JobQuota(Base):
+    __tablename__ = "job_quotas"
+
+    api_key_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    window_started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    admitted_count: Mapped[int] = mapped_column(Integer, default=0)

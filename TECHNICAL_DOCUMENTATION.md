@@ -152,7 +152,7 @@ The ingest operation is intended to be idempotent. Running it repeatedly without
 
 For `daily`, it calls `file_selector.deterministic_select_by_date()`. The same date always selects the same indexed sounds, and an existing archive is reused unless overwrite is requested.
 
-For `random`, it calls `challenge_service.random_select()`, which uses `random.choice` on each category's indexed `Sound` rows. Random packs are also persisted, with a unique timestamp-based date key.
+For `random`, it calls `challenge_service.random_select()`, which uses `random.choice` on each category's indexed `Sound` rows. Random packs are also persisted, with a unique timestamp-based date key. Public random generation is disabled by default and should be protected by `BEAT_API_KEY`.
 
 Both modes package `Sound` objects through `file_manager.create_pack()`. No API or CLI path selects directly from the filesystem.
 
@@ -242,8 +242,7 @@ Query parameters:
 
 | Parameter | Values | Default | Meaning |
 | --- | --- | --- | --- |
-| `mode` | `daily`, `random` | `daily` | Select deterministic daily or random indexed sounds |
-| `overwrite` | `true`, `false` | `false` | Regenerate the daily record instead of reusing it |
+| `mode` | `daily`, `random` | `daily` | Select deterministic daily or opt-in random indexed sounds |
 
 Example request:
 
@@ -257,15 +256,46 @@ Successful responses have a `Content-Disposition` header similar to:
 attachment; filename=pack_20260906_221943.zip
 ```
 
-Random mode example:
+Random mode is disabled unless `ALLOW_RANDOM_CHALLENGES=true` and
+`BEAT_API_KEY` is configured. When enabled, send the key as a Bearer token:
 
 ```sh
-curl -f -OJ 'http://localhost:5000/api/daily-challenge?mode=random'
+curl -f -OJ \
+  -H "Authorization: Bearer $BEAT_API_KEY" \
+  'http://localhost:5000/api/daily-challenge?mode=random'
 ```
 
 An unsupported mode returns HTTP `400`.
 
-If no archive can be created, the route returns HTTP `404` with:
+### Asynchronous challenge jobs
+
+For generation that should not occupy a web worker, enable
+`ALLOW_ASYNC_CHALLENGES=true`, initialize the `challenge_jobs` table with
+`beat-init-db`, and run exactly one `beat-worker` process under the
+PythonAnywhere Developer always-on task.
+
+Submit a job:
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer $BEAT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"mode":"random"}' \
+  http://localhost:5000/api/challenges
+```
+
+The API returns `202` with an ID and status URL. Poll
+`GET /api/challenges/<id>` using the same Bearer token; once the status is
+`completed`, download from the returned `download_url`. Jobs are rate limited
+by the configured API key using `JOB_RATE_LIMIT_SECONDS` and
+`MAX_JOBS_PER_RATE_WINDOW`.
+
+The request body must be a JSON object. Invalid JSON shapes return `400`.
+Browser clients configured through `ALLOWED_ORIGINS` may submit the `POST`
+request with `Authorization` and `Content-Type` headers; other origins are
+not granted API CORS access.
+
+If no indexed sounds are available, the route returns HTTP `404` with:
 
 ```json
 {"error": "Could not create the daily challenge pack."}
