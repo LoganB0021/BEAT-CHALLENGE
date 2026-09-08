@@ -124,7 +124,8 @@ export PYTHONPATH=src && uv run python -m api.app
 
 The Flask API starts on `http://localhost:5000/` with endpoints:
 
-* `GET /api/daily-challenge` — returns JSON with selected files and pack metadata.
+* `GET /api/daily-challenge` — downloads the stored/generated daily challenge ZIP.
+  Add `?mode=random` for a random database-backed challenge.
 * Additional endpoints available via `src/api/routes.py`.
 
 ---

@@ -53,7 +53,7 @@ def create_beat_pack(selected_files):
         logger.error(f"🚨 Error creating beat pack: {e}")
         return None
     
-def create_pack(selected_sounds: dict, db: Session):
+def create_pack(selected_sounds: dict, db: Session, pack_date=None, mode="daily"):
     """
     Create a Pack record in DB and write zip to PACKS_DIR.
 
@@ -66,9 +66,8 @@ def create_pack(selected_sounds: dict, db: Session):
     """
     os.makedirs(PACKS_DIR, exist_ok=True)
 
-    # Create deterministic name based on date
-    today_str = datetime.today().strftime("%Y-%m-%d")
-    name = f"pack_{today_str}"
+    pack_date = pack_date or datetime.today().strftime("%Y-%m-%d")
+    name = f"pack_{pack_date}"
 
     # Use timestamp in filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -102,14 +101,14 @@ def create_pack(selected_sounds: dict, db: Session):
     # Create DB Pack record with all required fields
     pack = Pack(
         name=name,
-        date=today_str,
-        seed=int(datetime.today().strftime("%Y%m%d")),  # matches file selector seed
+        date=pack_date,
+        seed=int(datetime.today().strftime("%Y%m%d")),
         zip_path=zip_filename,
         size_bytes=size_bytes,
         checksum=checksum,
         items=[sound.id for sound in selected_sounds.values()],
         status="generated",
-        generated_by="file_selector",
+        generated_by=f"file_selector:{mode}",
         updated_at=datetime.now()
     )    
     db.add(pack)
