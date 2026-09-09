@@ -174,6 +174,19 @@ For verbose output:
 uv run pytest -v
 ```
 
+Focused coverage commands:
+
+```sh
+# Packaging, deterministic/random selection, and daily regeneration
+uv run pytest tests/test_file_manager.py tests/test_challenge_service.py -q
+
+# Flask policy/API, async jobs, worker leases, and cleanup retention
+uv run pytest tests/test_api.py tests/test_jobs.py tests/test_cleanup.py -q
+
+# Run the complete suite
+uv run pytest tests/ -q
+```
+
 > `pytest` is installed automatically as a dev dependency in the uv environment.
 
 ---
