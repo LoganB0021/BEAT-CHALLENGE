@@ -30,7 +30,7 @@ def test_daily_api_returns_zip_with_safety_headers(
 
 def test_daily_api_reports_empty_index(api_app):
     response = api_app().test_client().get("/api/daily-challenge")
-    assert response.status_code == 404
+    assert response.status_code == 503
     assert response.get_json()["error"] == "No indexed sounds are available."
 
 

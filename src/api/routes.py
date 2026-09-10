@@ -55,7 +55,7 @@ def _empty_index_response():
             ),
             503,
         )
-    return jsonify({"error": "No indexed sounds are available."}), 404
+    return jsonify({"error": "No indexed sounds are available."}), 503
 
 
 @api_blueprint.route("/daily-challenge", methods=["GET"])
