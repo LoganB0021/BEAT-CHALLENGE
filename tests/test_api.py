@@ -34,6 +34,17 @@ def test_daily_api_reports_empty_index(api_app):
     assert response.get_json()["error"] == "No indexed sounds are available."
 
 
+def test_daily_page_explains_empty_index(api_app):
+    response = api_app().test_client().get(
+        "/api/daily-challenge",
+        headers={"Accept": "text/html"},
+    )
+    assert response.status_code == 503
+    assert response.mimetype == "text/html"
+    assert "The next beat" in response.get_data(as_text=True)
+    assert "run the ingest command" in response.get_data(as_text=True)
+
+
 def test_daily_api_rejects_invalid_mode(api_app):
     response = api_app().test_client().get("/api/daily-challenge?mode=weekly")
     assert response.status_code == 400

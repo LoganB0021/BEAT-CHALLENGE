@@ -45,6 +45,19 @@ def _authorized_job(job, supplied_key):
     return job.api_key_hash == hash_api_key(supplied_key)
 
 
+def _empty_index_response():
+    message = "No indexed sounds are available yet."
+    if request.accept_mimetypes.best == "text/html":
+        return (
+            render_template(
+                "challenge-unavailable.html",
+                message=message,
+            ),
+            503,
+        )
+    return jsonify({"error": "No indexed sounds are available."}), 404
+
+
 @api_blueprint.route("/daily-challenge", methods=["GET"])
 def get_daily_challenge():
     mode = request.args.get("mode", "daily")
@@ -67,7 +80,7 @@ def get_daily_challenge():
         return jsonify({"error": str(exc)}), 400
 
     if not pack:
-        return jsonify({"error": "No indexed sounds are available."}), 404
+        return _empty_index_response()
 
     response = send_file(
         pack.zip_path,

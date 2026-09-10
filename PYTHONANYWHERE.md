@@ -29,8 +29,22 @@ the account uses a legacy or regional plan name.
    ```
 
 4. Set the Web tab virtualenv to `/home/USERNAME/BEAT-CHALLENGE/.venv`.
-5. Copy `pythonanywhere_wsgi.example.py` into the WSGI editor, replace
-   `USERNAME`, and set `SECRET_KEY` through a protected environment mechanism.
+5. Copy `pythonanywhere_wsgi.example.py` into the WSGI editor and replace
+   `USERNAME`. PythonAnywhere accounts may not expose a Web-tab environment
+   variable editor, so store the secret in a private file outside the
+   repository instead:
+
+   ```sh
+   umask 077
+   mkdir -p /home/USERNAME/.config/beat-challenge
+   printf '%s\n' 'GENERATE-A-LONG-RANDOM-VALUE' \
+     > /home/USERNAME/.config/beat-challenge/secret_key
+   chmod 600 /home/USERNAME/.config/beat-challenge/secret_key
+   ```
+
+   Replace the placeholder with a generated secret, and replace `USERNAME` in
+   the WSGI file as well. The template reads this file before importing Flask;
+   do not commit it or put the value in the repository.
 6. In a Bash console, initialize the database index:
 
    ```sh

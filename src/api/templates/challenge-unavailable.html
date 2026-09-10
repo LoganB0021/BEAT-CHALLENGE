@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The next beat challenge is being prepared.">
+    <title>Challenge coming soon — Beat Challenge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+  </head>
+  <body>
+    <main class="page-shell status-page">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/" aria-label="Beat Challenge home">
+          <span class="brand-mark" aria-hidden="true">♪</span>
+          <span>BEAT<span class="brand-accent">/</span>CHALLENGE</span>
+        </a>
+      </nav>
+
+      <section class="status-card" aria-labelledby="status-title">
+        <p class="eyebrow"><span class="pulse" aria-hidden="true"></span> Almost there</p>
+        <h1 id="status-title">The next beat<br><em>is loading.</em></h1>
+        <p class="status-message">
+          {{ message }} Add your beat library and run the ingest command, then
+          come back for a fresh challenge.
+        </p>
+        <a class="button" href="/">
+          <span>Back to home</span>
+          <span class="button-arrow" aria-hidden="true">↗</span>
+        </a>
+      </section>
+
+      <footer class="footer">
+        <span>Built for curious producers.</span>
+        <span>© Beat Challenge</span>
+      </footer>
+    </main>
+  </body>
+</html>
