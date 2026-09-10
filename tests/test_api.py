@@ -4,6 +4,16 @@ from io import BytesIO
 from beat_challenge_generator import jobs
 
 
+def test_landing_page_links_to_daily_challenge(api_app):
+    response = api_app().test_client().get("/")
+
+    assert response.status_code == 200
+    assert response.mimetype == "text/html"
+    assert "Make something" in response.get_data(as_text=True)
+    assert "/api/daily-challenge" in response.get_data(as_text=True)
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
+
+
 def test_daily_api_returns_zip_with_safety_headers(
     api_app, ingested_assets
 ):

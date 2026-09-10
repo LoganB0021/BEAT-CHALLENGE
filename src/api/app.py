@@ -4,7 +4,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from api.config import Config
-from api.routes import api_blueprint
+from api.routes import api_blueprint, web_blueprint
 
 
 def create_app(config_object=None):
@@ -27,6 +27,7 @@ def create_app(config_object=None):
             },
         )
 
+    app.register_blueprint(web_blueprint)
     app.register_blueprint(api_blueprint, url_prefix="/api")
     return app
 

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A fresh beat-making challenge, delivered every day.">
+    <title>Beat Challenge — Make something unexpected</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+  </head>
+  <body>
+    <main class="page-shell">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/" aria-label="Beat Challenge home">
+          <span class="brand-mark" aria-hidden="true">♪</span>
+          <span>BEAT<span class="brand-accent">/</span>CHALLENGE</span>
+        </a>
+        <a class="nav-link" href="#how-it-works">How it works <span aria-hidden="true">↘</span></a>
+      </nav>
+
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="pulse" aria-hidden="true"></span> New challenge every day</p>
+          <h1 id="hero-title">Make something<br><em>unexpected.</em></h1>
+          <p class="hero-description">
+            A daily selection of sounds to push your production somewhere new.
+            Download the pack, open your DAW, and see what you can make.
+          </p>
+          <a class="button" href="{{ url_for('api.get_daily_challenge') }}">
+            <span>Get today’s challenge</span>
+            <span class="button-arrow" aria-hidden="true">↗</span>
+          </a>
+          <p class="button-note">One pack · Three ingredients · Infinite directions</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="sun"></div>
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <div class="orb orb-one"></div>
+          <div class="orb orb-two"></div>
+          <div class="orb orb-three"></div>
+          <div class="art-label">SOUND<br>IN MOTION</div>
+        </div>
+      </section>
+
+      <section class="steps" id="how-it-works" aria-labelledby="steps-title">
+        <div>
+          <p class="eyebrow">The ritual</p>
+          <h2 id="steps-title">Three moves.<br><em>Zero overthinking.</em></h2>
+        </div>
+        <div class="step-list">
+          <article class="step">
+            <span class="step-number">01</span>
+            <div><h3>Download</h3><p>Grab the day’s curated ZIP pack in one click.</p></div>
+          </article>
+          <article class="step">
+            <span class="step-number">02</span>
+            <div><h3>Explore</h3><p>Find the spark in your drum kit, FX, and sample.</p></div>
+          </article>
+          <article class="step">
+            <span class="step-number">03</span>
+            <div><h3>Create</h3><p>Make a beat before the next challenge lands.</p></div>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>Built for curious producers.</span>
+        <span>© Beat Challenge</span>
+      </footer>
+    </main>
+  </body>
+</html>

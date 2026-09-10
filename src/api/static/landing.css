@@ -1,0 +1,57 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+:root {
+  --ink: #161616;
+  --muted: #6e6a63;
+  --paper: #f5f1e9;
+  --acid: #d9f34a;
+  --line: rgba(22, 22, 22, .16);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Space Grotesk", sans-serif;
+  margin: 0;
+}
+
+.page-shell { margin: auto; max-width: 1240px; padding: 0 5vw; }
+.nav { align-items: center; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; padding: 27px 0; }
+.brand { align-items: center; color: var(--ink); display: flex; font-size: .78rem; font-weight: 700; gap: 10px; letter-spacing: .08em; text-decoration: none; }
+.brand-mark { align-items: center; background: var(--ink); border-radius: 50%; color: var(--acid); display: flex; font-size: 1.2rem; height: 31px; justify-content: center; width: 31px; }
+.brand-accent { color: #a2b928; }
+.nav-link { color: var(--muted); font-family: "DM Mono", monospace; font-size: .7rem; text-decoration: none; }
+.nav-link span { color: var(--ink); font-size: 1rem; margin-left: 6px; }
+.hero { align-items: center; display: grid; gap: 8vw; grid-template-columns: 1.05fr .95fr; min-height: 610px; }
+.eyebrow { align-items: center; color: var(--muted); display: flex; font-family: "DM Mono", monospace; font-size: .68rem; letter-spacing: .12em; margin: 0 0 27px; text-transform: uppercase; }
+.pulse { background: #a2b928; border-radius: 50%; height: 7px; margin-right: 10px; width: 7px; }
+h1, h2 { font-size: clamp(3.6rem, 7vw, 6.8rem); letter-spacing: -.08em; line-height: .88; margin: 0; }
+h1 em, h2 em { color: #a2b928; font-style: normal; }
+.hero-description { color: var(--muted); font-size: 1rem; line-height: 1.65; margin: 32px 0; max-width: 405px; }
+.button { align-items: center; background: var(--ink); color: var(--paper); display: inline-flex; font-size: .8rem; font-weight: 600; justify-content: space-between; min-width: 245px; padding: 17px 18px 17px 21px; text-decoration: none; transition: background .2s, transform .2s; }
+.button:hover, .button:focus-visible { background: #363630; transform: translateY(-2px); }
+.button-arrow { color: var(--acid); font-size: 1.2rem; }
+.button-note { color: var(--muted); font-family: "DM Mono", monospace; font-size: .6rem; margin-top: 14px; }
+.hero-art { height: 430px; position: relative; }
+.sun { background: var(--acid); border-radius: 50%; height: 255px; left: 18%; position: absolute; top: 17%; width: 255px; }
+.orbit { border: 1px solid var(--ink); border-radius: 50%; position: absolute; transform: rotate(-28deg); }
+.orbit-one { height: 300px; left: 3%; top: 12%; width: 510px; }
+.orbit-two { border-color: rgba(22, 22, 22, .35); height: 385px; left: -6%; top: 2%; width: 590px; }
+.orb { background: var(--ink); border-radius: 50%; height: 12px; position: absolute; width: 12px; }
+.orb-one { left: 8%; top: 20%; }.orb-two { background: #a2b928; left: 84%; top: 34%; }.orb-three { height: 8px; left: 70%; top: 83%; width: 8px; }
+.art-label { bottom: 7%; font-family: "DM Mono", monospace; font-size: .64rem; letter-spacing: .08em; line-height: 1.4; position: absolute; right: 6%; }
+.steps { border-top: 1px solid var(--line); display: grid; gap: 12vw; grid-template-columns: .9fr 1.1fr; padding: 80px 0 100px; }
+h2 { font-size: clamp(2.7rem, 4.5vw, 4.4rem); }
+.step-list { border-top: 1px solid var(--line); }
+.step { align-items: flex-start; border-bottom: 1px solid var(--line); display: grid; gap: 35px; grid-template-columns: 45px 1fr; padding: 24px 0; }
+.step-number { color: #a2b928; font-family: "DM Mono", monospace; font-size: .7rem; }
+.step h3 { font-size: 1.1rem; margin: 0 0 7px; }.step p { color: var(--muted); font-size: .82rem; margin: 0; }
+.footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: "DM Mono", monospace; font-size: .62rem; justify-content: space-between; padding: 22px 0 30px; }
+@media (max-width: 720px) {
+  .hero { display: block; min-height: auto; padding: 90px 0 60px; }
+  .hero-art { height: 280px; margin-top: 35px; transform: scale(.78); transform-origin: left center; }
+  .steps { display: block; padding: 60px 0; }.step-list { margin-top: 45px; }
+  .nav-link { display: none; }
+}

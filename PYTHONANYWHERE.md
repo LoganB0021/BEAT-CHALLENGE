@@ -11,15 +11,21 @@ the account uses a legacy or regional plan name.
 ## Initial setup
 
 1. Clone the repository into `/home/USERNAME/BEAT-CHALLENGE`.
-2. Upload the ignored `beats/` library and create `data/`, `output/packs/`, and
-   `logs/`.
-3. Create a virtual environment using the same Python version selected in the
-   Web tab:
+2. Upload the ignored `beats/` library. Importing the application creates
+   `beats/`, `data/`, `output/packs/`, and `logs/` automatically; no manual
+   directory creation is required. The configured user must have write access
+   to the project directory.
+3. Install `uv` for your account, then create and sync the project environment
+   using the same Python version selected in the Web tab. PythonAnywhere's Web
+   tab still needs the resulting `.venv` path, but `uv` replaces the
+   `mkvirtualenv`/`pip install` workflow:
 
    ```sh
-   python3.12 -m venv /home/USERNAME/BEAT-CHALLENGE/.venv
-   source /home/USERNAME/BEAT-CHALLENGE/.venv/bin/activate
-   python -m pip install /home/USERNAME/BEAT-CHALLENGE
+   python3.12 -m pip install --user uv
+   export PATH="$HOME/.local/bin:$PATH"
+   cd /home/USERNAME/BEAT-CHALLENGE
+   uv venv --python /usr/bin/python3.12 .venv
+   uv sync --no-dev
    ```
 
 4. Set the Web tab virtualenv to `/home/USERNAME/BEAT-CHALLENGE/.venv`.
@@ -29,17 +35,16 @@ the account uses a legacy or regional plan name.
 
    ```sh
    cd /home/USERNAME/BEAT-CHALLENGE
-   source .venv/bin/activate
-   export PYTHONPATH="$PWD/src"
+   export PATH="$HOME/.local/bin:$PATH"
    export DATABASE_URL="sqlite:////home/USERNAME/BEAT-CHALLENGE/data/beat_challenge.db"
-   python -m beat_challenge_generator.ingest
+   uv run python -m beat_challenge_generator.ingest
    ```
 
    On a new deployment, initialize tables before ingestion:
 
    ```sh
-   beat-init-db
-   python -m beat_challenge_generator.ingest
+   uv run beat-init-db
+   uv run python -m beat_challenge_generator.ingest
    ```
 
 7. Reload the web app and inspect the Web tab error log if the WSGI import
@@ -75,7 +80,8 @@ duplicate work across the three processes.
 For the current implementation, use scheduled tasks for maintenance:
 
 ```text
-/home/USERNAME/BEAT-CHALLENGE/.venv/bin/beat-cleanup --keep 5
+/home/USERNAME/.local/bin/uv run --directory /home/USERNAME/BEAT-CHALLENGE \
+  beat-cleanup --keep 5
 ```
 
 The repository includes a database-backed job table and worker for this case.
@@ -148,8 +154,8 @@ Generated archives remain under `output/packs/`. Run the cleanup command from a
 scheduled PythonAnywhere task or manually:
 
 ```sh
-source /home/USERNAME/BEAT-CHALLENGE/.venv/bin/activate
-beat-cleanup --keep 5
+export PATH="$HOME/.local/bin:$PATH"
+uv run --directory /home/USERNAME/BEAT-CHALLENGE beat-cleanup --keep 5
 ```
 
 Keep `data/`, `output/`, `logs/`, `.env`, and the source library out of static

@@ -3,7 +3,7 @@ import os
 
 from datetime import datetime, timedelta, timezone
 
-from flask import Blueprint, current_app, jsonify, request, send_file, url_for
+from flask import Blueprint, current_app, jsonify, render_template, request, send_file, url_for
 
 from beat_challenge_generator.challenge_service import generate_challenge
 from beat_challenge_generator.db import get_session
@@ -12,6 +12,15 @@ from beat_challenge_generator.models import ChallengeJob, Pack
 
 
 api_blueprint = Blueprint("api", __name__)
+web_blueprint = Blueprint("web", __name__)
+
+
+@web_blueprint.route("/", methods=["GET"])
+def landing_page():
+    response = current_app.make_response(render_template("index.html"))
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
 
 
 def _require_random_api_key():
