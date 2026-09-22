@@ -51,7 +51,7 @@ def test_daily_generation_regenerates_missing_archive(
 
     os.remove(first.zip_path)
     second = generate_challenge(db_session, target_date=target)
-    assert second.zip_path != first.zip_path
+    assert second.zip_path == first.zip_path
     assert os.path.exists(second.zip_path)
     assert db_session.query(Pack).count() == 1
 
@@ -63,8 +63,7 @@ def test_daily_overwrite_replaces_archive(db_session, ingested_assets):
     second = generate_challenge(db_session, target_date=target, overwrite=True)
     import os
 
-    assert second.zip_path != old_path
-    assert not os.path.exists(old_path)
+    assert second.zip_path == old_path
     assert os.path.exists(second.zip_path)
     assert db_session.query(Pack).count() == 1
 

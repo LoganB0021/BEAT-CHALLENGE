@@ -10,8 +10,8 @@ There is one shared generation workflow with two modes:
 
 | Mode | Selection | Output | Database record |
 | --- | --- | --- | --- |
-| `daily` | Deterministic selection from `Sound` rows using the target date | `output/packs/pack_<timestamp>.zip` | Yes, through `Pack`; one record per date |
-| `random` | Random item from each category's `Sound` rows | `output/packs/pack_<timestamp>.zip` | Yes, through `Pack` |
+| `daily` | Deterministic selection from `Sound` rows using the target date | `output/packs/daily_<YYYY-MM-DD>.zip` | Yes, through `Pack`; one record per date |
+| `random` | Random item from each category's `Sound` rows | `output/packs/random_<timestamp>.zip` | Yes, through `Pack` |
 
 The shared workflow lives in `challenge_service.generate_challenge`. Both the API and CLI open a SQLAlchemy session, call that method, and receive a persisted `Pack` object. The API streams `Pack.zip_path`; the CLI prints it.
 
@@ -253,7 +253,7 @@ curl -f -OJ http://localhost:5000/api/daily-challenge
 Successful responses have a `Content-Disposition` header similar to:
 
 ```text
-attachment; filename=pack_20260906_221943.zip
+attachment; filename=daily_2026-09-06.zip
 ```
 
 Random mode is disabled unless `ALLOW_RANDOM_CHALLENGES=true` and

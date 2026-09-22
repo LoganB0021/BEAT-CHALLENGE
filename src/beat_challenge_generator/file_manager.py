@@ -6,7 +6,6 @@ import zipfile
 import random
 import string
 from pathlib import Path
-from uuid import uuid4
 
 from sqlalchemy.orm import Session
 from beat_challenge_generator.logger import logger
@@ -72,8 +71,12 @@ def create_pack(selected_sounds: dict, db: Session, pack_date=None, mode="daily"
     pack_date = pack_date or datetime.today().strftime("%Y-%m-%d")
     name = f"pack_{pack_date}"
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    zip_filename = os.path.join(PACKS_DIR, f"pack_{timestamp}_{uuid4().hex}.zip")
+    if mode == "daily":
+        archive_name = f"daily_{pack_date}.zip"
+    else:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        archive_name = f"random_{timestamp}.zip"
+    zip_filename = os.path.join(PACKS_DIR, archive_name)
     temp_path = None
     beat_root = Path(BEAT_DIR).resolve()
 

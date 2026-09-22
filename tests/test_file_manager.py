@@ -13,6 +13,7 @@ def test_create_pack_writes_layout_checksum_and_metadata(
 ):
     zip_path = create_pack(sounds_by_category, db_session, pack_date="2026-09-09")
 
+    assert Path(zip_path).name == "daily_2026-09-09.zip"
     assert zipfile.is_zipfile(zip_path)
     with zipfile.ZipFile(zip_path) as archive:
         assert sorted(archive.namelist()) == [
