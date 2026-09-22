@@ -77,6 +77,12 @@ This will show all installed packages inside the uv-managed environment.
 uv run beat-gen
 ```
 
+To explicitly regenerate today's daily pack:
+
+```sh
+uv run beat-gen --mode daily --overwrite
+```
+
 This will:
 
 * Ensure `beats/`, `output/`, `data/`, and `logs/` directories exist.
